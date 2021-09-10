@@ -91,12 +91,12 @@ class GameState:
         else:
             return GhostRules.getLegalActions( self, agentIndex )
 
-    def generateChild( self, agentIndex, action):
+    def generateSuccessor( self, agentIndex, action):
         """
-        Returns the child state after the specified agent takes the action.
+        Returns the successor state after the specified agent takes the action.
         """
-        # Check that children exist
-        if self.isWin() or self.isLose(): raise Exception('Can\'t generate a child of a terminal state.')
+        # Check that successors exist
+        if self.isWin() or self.isLose(): raise Exception('Can\'t generate a successor of a terminal state.')
 
         # Copy current state
         state = GameState(self)
@@ -127,11 +127,11 @@ class GameState:
     def getLegalPacmanActions( self ):
         return self.getLegalActions( 0 )
 
-    def generatePacmanChild( self, action ):
+    def generatePacmanSuccessor( self, action ):
         """
-        Generates the child state after the specified pacman move
+        Generates the successor state after the specified pacman move
         """
-        return self.generateChild( 0, action )
+        return self.generateSuccessor( 0, action )
 
     def getPacmanState( self ):
         """
@@ -346,7 +346,7 @@ class PacmanRules:
 
         # Update Configuration
         vector = Actions.directionToVector( action, PacmanRules.PACMAN_SPEED )
-        pacmanState.configuration = pacmanState.configuration.generateChild( vector )
+        pacmanState.configuration = pacmanState.configuration.generateSuccessor( vector )
 
         # Eat
         next = pacmanState.configuration.getPosition()
@@ -408,7 +408,7 @@ class GhostRules:
         speed = GhostRules.GHOST_SPEED
         if ghostState.scaredTimer > 0: speed /= 2.0
         vector = Actions.directionToVector( action, speed )
-        ghostState.configuration = ghostState.configuration.generateChild( vector )
+        ghostState.configuration = ghostState.configuration.generateSuccessor( vector )
     applyAction = staticmethod( applyAction )
 
     def decrementTimer( ghostState):
@@ -617,7 +617,7 @@ def replayGame( layout, actions, display ):
 
     for action in actions:
             # Execute the action
-        state = state.generateChild( *action )
+        state = state.generateSuccessor( *action )
         # Change the display
         display.update( state.data )
         # Allow for game specific conditions (winning, losing, etc.)

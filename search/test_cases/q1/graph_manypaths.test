@@ -13,7 +13,7 @@ diagram: """
 A is the start state, G is the goal.  Arrows mark 
 possible state transitions.  This graph has multiple
 paths to the goal, where nodes with the same state 
-are added to the frontier multiple times before they
+are added to the fringe multiple times before they
 are expanded.
 """
 # The following section specifies the search problem and the solution.

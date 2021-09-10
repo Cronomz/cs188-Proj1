@@ -33,8 +33,8 @@ def wrap_solution(solution):
 
 
 def followAction(state, action, problem):
-  for child1, action1, cost1 in problem.expand(state):
-    if action == action1: return child1
+  for successor1, action1, cost1 in problem.getSuccessors(state):
+    if action == action1: return successor1
   return None
 
 def followPath(path, problem):
@@ -71,9 +71,9 @@ class GraphSearch(SearchProblem):
             raise Exception("GraphSearch graph specification goal_states not found or incorrect on line 1")
         goals = r.group(1).split()
         self.goals = [str.strip(g) for g in goals]
-        self.children = {}
+        self.successors = {}
         all_states = set()
-        self.orderedChildTuples = []
+        self.orderedSuccessorTuples = []
         for l in lines[2:]:
             if len(l.split()) == 3:
                 start, action, next_state = l.split()
@@ -85,15 +85,15 @@ class GraphSearch(SearchProblem):
                 print('"""%s"""' % graph_text)
                 raise Exception("Invalid line in GraphSearch graph specification on line:" + l)
             cost = float(cost)
-            self.orderedChildTuples.append((start, action, next_state, cost))
+            self.orderedSuccessorTuples.append((start, action, next_state, cost))
             all_states.add(start)
             all_states.add(next_state)
-            if start not in self.children:
-                self.children[start] = []
-            self.children[start].append((next_state, action, cost))
+            if start not in self.successors:
+                self.successors[start] = []
+            self.successors[start].append((next_state, action, cost))
         for s in all_states:
-            if s not in self.children:
-                self.children[s] = []
+            if s not in self.successors:
+                self.successors[s] = []
 
     # Get start state
     def getStartState(self):
@@ -103,46 +103,19 @@ class GraphSearch(SearchProblem):
     def isGoalState(self, state):
         return state in self.goals
 
-    # Get all children of a state
-    def expand(self, state):
+    # Get all successors of a state
+    def getSuccessors(self, state):
         self.expanded_states.append(state)
-        return list(self.children[state])
-
-    def getActions(self, state):
-        children = self.children[state]
-        actions = [action for next_state, action, cost in children]
-        return actions
-
-    def getActionCost(self, state, action, next_state):
-        children = self.children[state]
-        for next_state_i, action_i, cost_i in children:
-            if (next_state_i, action_i) == (next_state, action):
-                return cost_i
-
-        error_msg = "(state: {}, action: {}, next_state: {}) not found in children list".format(
-            state, action, next_state
-        )
-        raise Exception(error_msg)
-
-    def getNextState(self, state, action):
-        children = self.children[state]
-        for next_state_i, action_i, cost_i in children:
-            if action_i == action:
-                return next_state_i
-
-        error_msg = "(state: {}, action: {}) not found in children list".format(
-            state, action
-        )
-        raise Exception(error_msg)
+        return list(self.successors[state])
 
     # Calculate total cost of a sequence of actions
-    def getCostOfActionSequence(self, actions):
+    def getCostOfActions(self, actions):
         total_cost = 0
         state = self.start_state
         for a in actions:
-            children = self.children[state]
+            successors = self.successors[state]
             match = False
-            for (next_state, action, cost) in children:
+            for (next_state, action, cost) in successors:
                 if a == action:
                     state = next_state
                     total_cost += cost
@@ -152,13 +125,13 @@ class GraphSearch(SearchProblem):
                 sys.exit(1)
         return total_cost
 
-    # Return a list of all states on which 'expand' was called
+    # Return a list of all states on which 'getSuccessors' was called
     def getExpandedStates(self):
         return self.expanded_states
 
     def __str__(self):
-        print(self.children)
-        edges = ["%s %s %s %s" % t for t in self.orderedChildTuples]
+        print(self.successors)
+        edges = ["%s %s %s %s" % t for t in self.orderedSuccessorTuples]
         return \
 """start_state: %s
 goal_states: %s
@@ -529,8 +502,8 @@ class HeuristicTest(testClasses.TestCase):
         if not h0 <= solutionCost:
             return False, 'Heuristic failed admissibility test'
 
-        for child, action, stepCost in problem.expand(state):
-            h1 = heuristic(child, problem)
+        for succ, action, stepCost in problem.getSuccessors(state):
+            h1 = heuristic(succ, problem)
             if h1 < 0: return False, 'Heuristic failed H >= 0 test'
             if h0 - h1 > stepCost: return False, 'Heuristic failed consistency test'
 
@@ -563,7 +536,7 @@ class HeuristicTest(testClasses.TestCase):
         print(self.layoutText)
         problem, _, heuristic = self.setupProblem(searchAgents)
         path = search.astar(problem, heuristic)
-        cost = problem.getCostOfActionSequence(path)
+        cost = problem.getCostOfActions(path)
         print("Problem solved")
 
         handle.write('solution_cost: "%s"\n' % cost)
@@ -726,10 +699,10 @@ class CornerHeuristicSanity(testClasses.TestCase):
         problem = searchAgents.CornersProblem(game_state)
         start_state = problem.getStartState()
         h0 = searchAgents.cornersHeuristic(start_state, problem)
-        children = problem.expand(start_state)
+        succs = problem.getSuccessors(start_state)
         # cornerConsistencyA
-        for child in children:
-            h1 = searchAgents.cornersHeuristic(child[0], problem)
+        for succ in succs:
+            h1 = searchAgents.cornersHeuristic(succ[0], problem)
             if h0 - h1 > 1:
                 grades.addMessage('FAIL: inconsistent heuristic')
                 return False
@@ -811,7 +784,7 @@ class CornerHeuristicPacman(testClasses.TestCase):
         path = search.astar(problem, searchAgents.cornersHeuristic)
         print("path:", path)
         print("path length:", len(path))
-        cost = problem.getCostOfActionSequence(path)
+        cost = problem.getCostOfActions(path)
         if cost > true_cost:
             grades.addMessage('FAIL: Inconsistent heuristic')
             return False

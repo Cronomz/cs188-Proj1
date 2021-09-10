@@ -102,7 +102,7 @@ class Configuration:
     def __str__(self):
         return "(x,y)="+str(self.pos)+", "+str(self.direction)
 
-    def generateChild(self, vector):
+    def generateSuccessor(self, vector):
         """
         Generates a new configuration reached by translating the current
         configuration by the action vector.  This is a low-level call and does
@@ -362,11 +362,11 @@ class Actions:
         return neighbors
     getLegalNeighbors = staticmethod(getLegalNeighbors)
 
-    def getChild(position, action):
+    def getSuccessor(position, action):
         dx, dy = Actions.directionToVector(action)
         x, y = position
         return (x + dx, y + dy)
-    getChild = staticmethod(getChild)
+    getSuccessor = staticmethod(getSuccessor)
 
 class GameStateData:
     """
@@ -690,14 +690,14 @@ class Game:
             self.moveHistory.append( (agentIndex, action) )
             if self.catchExceptions:
                 try:
-                    self.state = self.state.generateChild( agentIndex, action )
+                    self.state = self.state.generateSuccessor( agentIndex, action )
                 except Exception as data:
                     self.mute(agentIndex)
                     self._agentCrash(agentIndex)
                     self.unmute()
                     return
             else:
-                self.state = self.state.generateChild( agentIndex, action )
+                self.state = self.state.generateSuccessor( agentIndex, action )
 
             # Change the display
             self.display.update( self.state.data )

@@ -41,45 +41,18 @@ class SearchProblem:
         """
         util.raiseNotDefined()
 
-    def expand(self, state):
+    def getSuccessors(self, state):
         """
           state: Search state
 
-        For a given state, this should return a list of triples, (child,
-        action, stepCost), where 'child' is a child to the current
+        For a given state, this should return a list of triples, (successor,
+        action, stepCost), where 'successor' is a successor to the current
         state, 'action' is the action required to get there, and 'stepCost' is
-        the incremental cost of expanding to that child.
+        the incremental cost of expanding to that successor.
         """
         util.raiseNotDefined()
 
-    def getActions(self, state):
-        """
-          state: Search state
-
-        For a given state, this should return a list of possible actions.
-        """
-        util.raiseNotDefined()
-
-    def getActionCost(self, state, action, next_state):
-        """
-          state: Search state
-          action: action taken at state.
-          next_state: next Search state after taking action.
-
-        For a given state, this should return the cost of the (s, a, s') transition.
-        """
-        util.raiseNotDefined()
-
-    def getNextState(self, state, action):
-        """
-          state: Search state
-          action: action taken at state
-
-        For a given state, this should return the next state after taking action from state.
-        """
-        util.raiseNotDefined()
-
-    def getCostOfActionSequence(self, actions):
+    def getCostOfActions(self, actions):
         """
          actions: A list of actions to take
 
@@ -111,43 +84,44 @@ def depthFirstSearch(problem):
 
     print("Start:", problem.getStartState())
     print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
+    print("Start's successors:", problem.getSuccessors(problem.getStartState()))
     """
     "*** YOUR CODE HERE ***"
-    print("Start:", problem.getStartState())
-    print("Is the start a goal?", problem.isGoalState(problem.getStartState()))
-    from game import Directions
-    from util import Stack, Queue
-    n = Directions.NORTH
-    s = Directions.SOUTH
-    w = Directions.WEST
-    e = Directions.EAST
-    dict = {'South': s, 'North': n, 'West': w, 'East': e}
-    statesVisited = []
-    m = Stack()
-    moves = []
-    m.push(problem.getStartState())
-    print(problem.expand(problem.getStartState()))
-    while not m.isEmpty():
-        state = m.pop()
-        if state not in statesVisited:
-            statesVisited.append(state)
-            b = 0
-            for possibleMoves in problem.expand(state):
-                m.push(possibleMoves[0])
-                b+=1
+    stack = util.Stack()
+    visited = {}
+    output = []
 
-        if problem.isGoalState(state):
-            return moves
+    start = (problem.getStartState(), None, 0)
+    stack.push([None, start])
+
+    while not stack.isEmpty():
+        nodes = stack.pop()
+        beforeNode = nodes[0]
+        currentNode = nodes[1]
+        if beforeNode != None:
+            visited[currentNode[0]] = (visited[beforeNode[0]]) + [(currentNode)]
+        else:
+            visited[currentNode[0]] = [(currentNode)]
+        if problem.isGoalState(currentNode[0]):
+            for node in visited[currentNode[0]]:
+                if node[1] != None:
+                    output.append(node[1])
+            return output
+
+        for node in problem.getSuccessors(currentNode[0]):
+            if node[0] not in visited:
+                stack.push([currentNode, node])
 
 
-    print(m.list)
-    print(statesVisited)
-    print(moves)
-
-    return moves
+    util.raiseNotDefined()
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
+    "*** YOUR CODE HERE ***"
+    util.raiseNotDefined()
+
+def uniformCostSearch(problem):
+    """Search the node of least total cost first."""
     "*** YOUR CODE HERE ***"
     util.raiseNotDefined()
 
@@ -168,3 +142,4 @@ def aStarSearch(problem, heuristic=nullHeuristic):
 bfs = breadthFirstSearch
 dfs = depthFirstSearch
 astar = aStarSearch
+ucs = uniformCostSearch

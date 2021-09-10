@@ -201,32 +201,18 @@ class EightPuzzleSearchProblem(search.SearchProblem):
     def isGoalState(self,state):
         return state.isGoal()
 
-    def expand(self,state):
+    def getSuccessors(self,state):
         """
-          Returns list of (child, action, stepCost) pairs where
-          each child is either left, right, up, or down
+          Returns list of (successor, action, stepCost) pairs where
+          each succesor is either left, right, up, or down
           from the original state and the cost is 1.0 for each
         """
-        child = []
-        for a in self.getActions(state):
-            next_state = self.getNextState(state, a)
-            child.append((next_state, a, self.getActionCost(state, a, next_state)))
-        return child
+        succ = []
+        for a in state.legalMoves():
+            succ.append((state.result(a), a, 1))
+        return succ
 
-    def getActions(self, state):
-        return state.legalMoves()
-
-    def getActionCost(self, state, action, next_state):
-        assert next_state == state.result(action), (
-            "getActionCost() called on incorrect next state.")
-        return 1
-
-    def getNextState(self, state, action):
-        assert action in state.legalMoves(), (
-            "getNextState() called on incorrect action")
-        return state.result(action)
-
-    def getCostOfActionSequence(self, actions):
+    def getCostOfActions(self, actions):
         """
          actions: A list of actions to take
 
