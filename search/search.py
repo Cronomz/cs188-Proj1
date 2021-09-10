@@ -98,19 +98,20 @@ def depthFirstSearch(problem):
         nodes = stack.pop()
         beforeNode = nodes[0]
         currentNode = nodes[1]
-        if beforeNode != None:
-            visited[currentNode[0]] = (visited[beforeNode[0]]) + [(currentNode)]
-        else:
-            visited[currentNode[0]] = [(currentNode)]
-        if problem.isGoalState(currentNode[0]):
-            for node in visited[currentNode[0]]:
-                if node[1] != None:
-                    output.append(node[1])
-            return output
+        if currentNode[0] not in visited:
+            if beforeNode != None:
+                visited[currentNode[0]] = (visited[beforeNode[0]]) + [(currentNode)]
+            else:
+                visited[currentNode[0]] = [(currentNode)]
+            if problem.isGoalState(currentNode[0]):
+                for node in visited[currentNode[0]]:
+                    if node[1] != None:
+                        output.append(node[1])
+                return output
 
-        for node in problem.getSuccessors(currentNode[0]):
-            if node[0] not in visited:
-                stack.push([currentNode, node])
+            for node in problem.getSuccessors(currentNode[0]):
+                if node[0] not in visited:
+                    stack.push([currentNode, node])
 
     return []
 
