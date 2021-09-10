@@ -112,13 +112,37 @@ def depthFirstSearch(problem):
             if node[0] not in visited:
                 stack.push([currentNode, node])
 
-
-    util.raiseNotDefined()
+    return []
 
 def breadthFirstSearch(problem):
     """Search the shallowest nodes in the search tree first."""
     "*** YOUR CODE HERE ***"
-    util.raiseNotDefined()
+    stack = util.Queue()
+    visited = {}
+    output = []
+
+    start = (problem.getStartState(), None, 0)
+    stack.push([None, start])
+
+    while not stack.isEmpty():
+        nodes = stack.pop()
+        beforeNode = nodes[0]
+        currentNode = nodes[1]
+        if beforeNode != None:
+            visited[currentNode[0]] = (visited[beforeNode[0]]) + [(currentNode)]
+        else:
+            visited[currentNode[0]] = [(currentNode)]
+        if problem.isGoalState(currentNode[0]):
+            for node in visited[currentNode[0]]:
+                if node[1] != None:
+                    output.append(node[1])
+            return output
+
+        for node in problem.getSuccessors(currentNode[0]):
+            if node[0] not in visited:
+                stack.push([currentNode, node])
+
+    return []
 
 def uniformCostSearch(problem):
     """Search the node of least total cost first."""
