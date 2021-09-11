@@ -155,13 +155,12 @@ def uniformCostSearch(problem):
 
     start = (problem.getStartState(), None, 0)
     stack.push([None, start], 0)
-    while not stack.isEmpty() and x <10:
+    while not stack.isEmpty():
         nodes = stack.pop()
         beforeNode = nodes[0]
         currentNode = nodes[1]
         cost = currentNode[2]
         print(currentNode)
-        print(visited)
         if currentNode[0] not in visited:
             if beforeNode != None :
                 cost += visited[beforeNode[0]][1]
@@ -169,9 +168,13 @@ def uniformCostSearch(problem):
             else:
                 visited[currentNode[0]] = [[(currentNode)], cost]
             if problem.isGoalState(currentNode[0]):
-                for node in visited[currentNode[0]]:
+                print(visited[currentNode[0]])
+                for node in visited[currentNode[0]][0]:
+                    print(node)
                     if node[1] != None:
+
                         output.append(node[1])
+                print(output)
                 return output
 
             for node in problem.getSuccessors(currentNode[0]):
