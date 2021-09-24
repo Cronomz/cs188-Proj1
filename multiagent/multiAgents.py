@@ -11,7 +11,6 @@
 # Student side autograding was added by Brad Miller, Nick Hay, and
 # Pieter Abbeel (pabbeel@cs.berkeley.edu).
 
-
 from util import manhattanDistance
 from game import Directions
 import random, util
@@ -152,12 +151,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
         Returns whether or not the game state is a losing state
         """
         "*** YOUR CODE HERE ***"
-        legalMoves = gameState.getLegalActions()
-        print(self.evaluationFunction(gameState))
+        def value(state, agent, depth):
+            print(agent, depth, gameState.getNumAgents())
+            if agent == 0:
+                return maxValue(agent, depth)
+            elif agent < gameState.getNumAgents():
+                if depth == 0 and agent == gameState.getNumAgents() - 1:
+                    print(agent, depth, gameState.getNumAgents(), "last")
+                    return [self.evaluationFunction(state), Directions.STOP]
+                return minValue(agent, depth)
+            else:
+                agent = -1
+                depth -= 1
+                return maxValue(agent, depth)
 
-        chosenIndex = random.choice(range(len(legalMoves)))
+        def maxValue(agent, depth):
+            v = float('-inf')
+            agent += 1
+            for successor in gameState.getLegalActions(agent):
+                state = gameState.generateSuccessor(agent, successor)
+                curVal = value(state, agent, depth)[0]
+                if curVal > v:
+                    action = successor
+                v = max(v, curVal)
+            return [v, action, state]
 
-        return legalMoves[chosenIndex]
+        def minValue(agent, depth):
+            v = float('inf')
+            agent += 1
+            for successor in gameState.getLegalActions(agent):
+                state = gameState.generateSuccessor(agent, successor)
+                curVal = value(state, agent, depth)[0]
+                if curVal < v:
+                    action = successor
+                v = min(v, curVal)
+            return [v, action, state]
+
+        return value(None, 0, self.depth)[1]
+
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
     """
