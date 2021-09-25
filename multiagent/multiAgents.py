@@ -152,42 +152,44 @@ class MinimaxAgent(MultiAgentSearchAgent):
         """
         "*** YOUR CODE HERE ***"
         def value(state, agent, depth):
-            print(agent, depth, gameState.getNumAgents())
+            agent += 1
+            if state.isWin() or state.isLose():
+                return [self.evaluationFunction(state), Directions.STOP]
+
             if agent == 0:
-                return maxValue(agent, depth)
-            elif agent < gameState.getNumAgents():
-                if depth == 0 and agent == gameState.getNumAgents() - 1:
-                    print(agent, depth, gameState.getNumAgents(), "last")
-                    return [self.evaluationFunction(state), Directions.STOP]
-                return minValue(agent, depth)
+                return maxValue(state, depth)
+            elif agent < state.getNumAgents():
+                return minValue(state, agent, depth)
             else:
-                agent = -1
+                if depth == 0:
+                    return [self.evaluationFunction(state), Directions.STOP]
+                agent = 0
                 depth -= 1
-                return maxValue(agent, depth)
+                return maxValue(state, depth)
 
-        def maxValue(agent, depth):
+        def maxValue(state, depth):
             v = float('-inf')
-            agent += 1
-            for successor in gameState.getLegalActions(agent):
-                state = gameState.generateSuccessor(agent, successor)
-                curVal = value(state, agent, depth)[0]
-                if curVal > v:
+            action = Directions.STOP
+            for successor in state.getLegalActions(0):
+                curState = state.generateSuccessor(0, successor)
+                curVal = value(curState, 0, depth)[0]
+                if curVal >= v:
                     action = successor
-                v = max(v, curVal)
+                    v = curVal
             return [v, action, state]
 
-        def minValue(agent, depth):
+        def minValue(state, agent, depth):
             v = float('inf')
-            agent += 1
-            for successor in gameState.getLegalActions(agent):
-                state = gameState.generateSuccessor(agent, successor)
-                curVal = value(state, agent, depth)[0]
-                if curVal < v:
+            action = Directions.STOP
+            for successor in state.getLegalActions(agent):
+                curState = state.generateSuccessor(agent, successor)
+                curVal = value(curState, agent, depth)[0]
+                if curVal <= v:
                     action = successor
-                v = min(v, curVal)
+                    v = curVal
             return [v, action, state]
 
-        return value(None, 0, self.depth)[1]
+        return value(gameState, -1, self.depth)[1]
 
 
 class AlphaBetaAgent(MultiAgentSearchAgent):
